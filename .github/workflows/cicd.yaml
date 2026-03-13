@@ -33,7 +33,6 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPO }}
           IMAGE_TAG: latest
         run: |
-          cd A-Complete-Medical-Chatbot-with-LLMs-LangChain-Pinecone-Flask-AWS-main
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
       - name: Push Image to ECR
@@ -75,6 +74,7 @@ jobs:
         run: |
           docker run -d \
           --name medical-chatbot \
+          --restart unless-stopped \
           -p 8080:8080 \
           -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
           -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \

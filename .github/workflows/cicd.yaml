@@ -1,0 +1,84 @@
+name: CI/CD Deploy Medical Chatbot to EC2
+
+on:
+push:
+branches:
+- main
+
+env:
+AWS_REGION: eu-north-1
+ECR_REPOSITORY: medical-chatbot
+IMAGE_TAG: latest
+
+jobs:
+
+build-and-push:
+name: Build and Push Image to ECR
+runs-on: ubuntu-latest
+
+```
+steps:
+  - name: Checkout Repository
+    uses: actions/checkout@v4
+
+  - name: Configure AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v2
+    with:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ env.AWS_REGION }}
+
+  - name: Login to Amazon ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v2
+
+  - name: Build Docker Image
+    run: |
+      echo "Building Docker image..."
+      docker build -t $ECR_REPOSITORY .
+
+  - name: Tag Docker Image
+    run: |
+      echo "Tagging Docker image..."
+      docker tag $ECR_REPOSITORY:$IMAGE_TAG \
+      ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+
+  - name: Push Image to ECR
+    run: |
+      echo "Pushing Docker image to ECR..."
+      docker push \
+      ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+```
+
+deploy:
+name: Deploy Container on EC2
+needs: build-and-push
+runs-on: self-hosted
+
+```
+steps:
+
+  - name: Login to Amazon ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v2
+
+  - name: Pull Latest Image
+    run: |
+      docker pull \
+      ${{ steps.login-ecr.outputs.registry }}/medical-chatbot:latest
+
+  - name: Stop Existing Container
+    run: |
+      docker stop medical-chatbot || true
+      docker rm medical-chatbot || true
+
+  - name: Run New Container
+    run: |
+      docker run -d \
+        --name medical-chatbot \
+        --restart unless-stopped \
+        -p 8080:8080 \
+        -e PINECONE_API_KEY="${{ secrets.PINECONE_API_KEY }}" \
+        -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+        ${{ steps.login-ecr.outputs.registry }}/medical-chatbot:latest
+```

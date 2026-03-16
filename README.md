@@ -1,130 +1,322 @@
-# Build-a-Complete-Medical-Chatbot-with-LLMs-LangChain-Pinecone-Flask-AWS
+# 🏥 Health Nexus AI – RAG-Based Medical Chatbot
 
-# How to run?
-### STEPS:
+An **AI-powered medical assistant** that uses **Retrieval Augmented Generation (RAG)** to provide accurate responses to medical queries by retrieving relevant information from a knowledge base.
 
-Clone the repository
+The system integrates **LangChain, Pinecone Vector Database, and LLMs** to enhance response accuracy and reduce hallucinations. The application is deployed using **Docker, AWS EC2, and CI/CD automation with GitHub Actions**.
+
+---
+
+# 🚀 Project Overview
+
+This project demonstrates an **end-to-end AI system deployment** that combines:
+
+* Large Language Models (LLMs)
+* Vector Search
+* Cloud Infrastructure
+* DevOps CI/CD automation
+
+The chatbot retrieves context from indexed medical documents and uses an LLM to generate informed responses.
+
+---
+
+# 🏗️ System Architecture
+
+```
+User Query
+   │
+   ▼
+Flask Backend API
+   │
+   ▼
+LangChain RAG Pipeline
+   │
+   ├── Retrieve Context → Pinecone Vector Database
+   │
+   ▼
+LLM (Groq / GPT Model)
+   │
+   ▼
+Generated Medical Response
+```
+
+---
+
+# ✨ Key Features
+
+* AI-powered **Medical Question Answering**
+* **Retrieval Augmented Generation (RAG)** pipeline
+* Vector similarity search using **Pinecone**
+* **LangChain orchestration framework**
+* Cloud deployment on **AWS EC2**
+* Containerized using **Docker**
+* Automated deployment using **GitHub Actions CI/CD**
+* Secure credential management using **environment variables**
+
+---
+
+# 🛠️ Tech Stack
+
+### Backend
+
+* Python
+* Flask
+
+### AI / Machine Learning
+
+* LangChain
+* LLM (Groq / GPT)
+* Pinecone Vector Database
+
+### DevOps & Cloud
+
+* Docker
+* AWS EC2
+* AWS ECR
+* GitHub Actions (CI/CD)
+
+### Other Tools
+
+* YAML
+* Environment Variables (.env)
+
+---
+
+# 📂 Project Structure
+
+```
+├── app.py
+├── store_index.py
+├── requirements.txt
+├── Dockerfile
+├── .github/workflows
+│   └── deployment.yml
+├── templates
+├── static
+└── README.md
+```
+
+---
+
+# ⚙️ Local Setup & Installation
+
+## 1️⃣ Clone the Repository
 
 ```bash
-git clonehttps://github.com/entbappy/Build-a-Complete-Medical-Chatbot-with-LLMs-LangChain-Pinecone-Flask-AWS.git
+git clone https://github.com/jainsidharth01/health-nexus-ai.git
+cd health-nexus-ai
 ```
-### STEP 01- Create a conda environment after opening the repository
+
+---
+
+# 2️⃣ Create Virtual Environment
+
+Using Conda:
 
 ```bash
 conda create -n medibot python=3.10 -y
-```
-
-```bash
 conda activate medibot
 ```
 
+---
 
-### STEP 02- install the requirements
+# 3️⃣ Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
+---
 
-### Create a `.env` file in the root directory and add your Pinecone & openai credentials as follows:
+# 4️⃣ Configure Environment Variables
 
-```ini
-PINECONE_API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-OPENAI_API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+Create a `.env` file in the root directory.
+
+```
+PINECONE_API_KEY=your_pinecone_api_key
+OPENAI_API_KEY=your_openai_api_key
 ```
 
+---
+
+# 5️⃣ Generate Vector Embeddings
+
+Run the following command to process documents and store embeddings in Pinecone.
 
 ```bash
-# run the following command to store embeddings to pinecone
 python store_index.py
 ```
 
+---
+
+# 6️⃣ Start the Application
+
 ```bash
-# Finally run the following command
 python app.py
 ```
 
-Now,
-```bash
-open up localhost:
+Open your browser and navigate to:
+
+```
+http://localhost:5000
 ```
 
+---
 
-### Techstack Used:
+# 🐳 Docker Setup
 
-- Python
-- LangChain
-- Flask
-- GPT
-- Pinecone
+## Build Docker Image
 
+```bash
+docker build -t medical-chatbot .
+```
 
+## Run Container
 
-# AWS-CICD-Deployment-with-Github-Actions
+```bash
+docker run -p 5000:5000 medical-chatbot
+```
 
-## 1. Login to AWS console.
+---
 
-## 2. Create IAM user for deployment
+# ☁️ AWS Deployment with CI/CD
 
-	#with specific access
+This project uses **GitHub Actions for automated deployment** to AWS.
 
-	1. EC2 access : It is virtual machine
+### Deployment Workflow
 
-	2. ECR: Elastic Container registry to save your docker image in aws
+```
+Code Push
+   │
+   ▼
+GitHub Actions Pipeline
+   │
+   ├── Build Docker Image
+   ├── Push Image to AWS ECR
+   └── Deploy Container to EC2
+```
 
+---
 
-	#Description: About the deployment
+# 🔐 AWS Setup Steps
 
-	1. Build docker image of the source code
+## 1️⃣ Create IAM User
 
-	2. Push your docker image to ECR
+Grant access for:
 
-	3. Launch Your EC2 
+* EC2
+* ECR
 
-	4. Pull Your image from ECR in EC2
+Policies:
 
-	5. Lauch your docker image in EC2
+```
+AmazonEC2ContainerRegistryFullAccess
+AmazonEC2FullAccess
+```
 
-	#Policy:
+---
 
-	1. AmazonEC2ContainerRegistryFullAccess
+# 2️⃣ Create ECR Repository
 
-	2. AmazonEC2FullAccess
+Example:
 
-	
-## 3. Create ECR repo to store/save docker image
-    - Save the URI: 315865595366.dkr.ecr.us-east-1.amazonaws.com/medicalbot
+```
+aws_account_id.dkr.ecr.region.amazonaws.com/medicalbot
+```
 
-	
-## 4. Create EC2 machine (Ubuntu) 
+---
 
-## 5. Open EC2 and Install docker in EC2 Machine:
-	
-	
-	#optinal
+# 3️⃣ Launch EC2 Instance
 
-	sudo apt-get update -y
+Recommended:
 
-	sudo apt-get upgrade
-	
-	#required
+* Ubuntu
+* t2.micro / t3.micro
+* Allow inbound traffic on port **5000**
 
-	curl -fsSL https://get.docker.com -o get-docker.sh
+---
 
-	sudo sh get-docker.sh
+# 4️⃣ Install Docker on EC2
 
-	sudo usermod -aG docker ubuntu
+```bash
+sudo apt update
+sudo apt install docker.io -y
+sudo usermod -aG docker ubuntu
+newgrp docker
+```
 
-	newgrp docker
-	
-# 6. Configure EC2 as self-hosted runner:
-    setting>actions>runner>new self hosted runner> choose os> then run command one by one
+---
 
+# 5️⃣ Configure GitHub Self Hosted Runner
 
-# 7. Setup github secrets:
+Go to:
 
-   - AWS_ACCESS_KEY_ID
-   - AWS_SECRET_ACCESS_KEY
-   - AWS_DEFAULT_REGION
-   - ECR_REPO
-   - PINECONE_API_KEY
-   - OPENAI_API_KEY
+```
+Repository → Settings → Actions → Runners
+```
+
+Add **Self Hosted Runner** and follow the setup commands.
+
+---
+
+# 🔑 GitHub Secrets Configuration
+
+Add the following secrets in your repository:
+
+```
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_DEFAULT_REGION
+ECR_REPO
+PINECONE_API_KEY
+OPENAI_API_KEY
+```
+
+---
+
+# 📊 DevOps Highlights
+
+* Containerized application using **Docker**
+* Implemented **CI/CD pipeline using GitHub Actions**
+* Deployed AI system to **AWS EC2**
+* Used **AWS ECR for container registry**
+* Automated build and deployment workflow
+
+---
+
+# 🎯 Learning Outcomes
+
+Through this project I gained hands-on experience with:
+
+* AI system deployment
+* Retrieval Augmented Generation (RAG)
+* Vector databases
+* Cloud infrastructure
+* DevOps CI/CD pipelines
+* Containerized applications
+
+---
+
+# 📌 Future Improvements
+
+* Add **user authentication**
+* Integrate **medical knowledge datasets**
+* Deploy with **Kubernetes**
+* Add **monitoring with Prometheus & Grafana**
+
+---
+
+# 👨‍💻 Author
+
+**Siddharth Jain**
+
+Cloud & DevOps Engineer | AI Systems | Linux
+
+GitHub
+https://github.com/jainsidharth01
+
+LinkedIn
+https://linkedin.com/in/siddharth-jain
+
+---
+
+# ⭐ If you found this project useful, consider giving it a star!
